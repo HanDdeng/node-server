@@ -1,4 +1,4 @@
-import http from 'http';
+import http from "http";
 
 export type StoreValue = any;
 
@@ -11,9 +11,10 @@ export interface errorListItem {
 export type NodeRequest = http.IncomingMessage & {
   errorList?: errorListItem[];
   queryParmas?: { [key: string]: any };
+  user?: string;
 };
 
-export type NodeRequestMethod = http.IncomingMessage['method'];
+export type NodeRequestMethod = http.IncomingMessage["method"];
 
 export type NodeResponse = http.ServerResponse<http.IncomingMessage> & {
   req: http.IncomingMessage;
@@ -43,7 +44,7 @@ export interface ApiOptions {
 }
 
 export interface ApiListItem {
-  methods: 'GET' | 'POST';
+  methods: "GET" | "POST";
   path: string;
   handler: ApiHandler;
   options: ApiOptions;

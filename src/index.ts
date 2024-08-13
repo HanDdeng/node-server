@@ -68,7 +68,7 @@ export class NodeServer {
       if (currentApi.options.openPermissionVerify) {
         const verifyRes = await this.#permissionVerifyHanlder?.(req, res);
         if (!verifyRes) {
-          throw "权限校验错误";
+          return;
         }
       }
       const queryParmas = await getReqParams(req);
@@ -131,7 +131,7 @@ export class NodeServer {
     this.#apiList = [
       ...(this.#apiList ?? []),
       {
-        methods: "GET",
+        methods: "POST",
         path,
         handler,
         options: {
