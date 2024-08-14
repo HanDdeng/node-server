@@ -11,10 +11,14 @@ const getPostParams = async (req: NodeRequest) => {
   return new Promise((resolve, reject) => {
     let body = "";
     req.on("data", chunk => {
-      body += chunk.toString();
+      body += chunk?.toString() ?? "";
     });
     req.on("end", () => {
       try {
+        if (!body) {
+          resolve({});
+          return;
+        }
         resolve(JSON.parse(body));
       } catch (e) {
         reject(e);

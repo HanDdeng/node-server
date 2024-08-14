@@ -77,7 +77,7 @@ export class NodeServer {
       if (currentApi.options.openParamsVerify) {
         const errorList: errorListItem[] = [];
         currentApi.options.paramsList?.forEach(item => {
-          const itemType = getType(item.key);
+          const itemType = getType(queryParmas[item.key]);
           if (itemType !== item.type) {
             errorList.push({ ...item, wrongType: itemType });
           }
