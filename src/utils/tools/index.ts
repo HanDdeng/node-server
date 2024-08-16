@@ -1,5 +1,6 @@
 import {
   ApiHandler,
+  ErrorCatch,
   GetReqParams,
   NodeRequest,
   NodeResponse,
@@ -44,9 +45,16 @@ export const getReqParams: GetReqParams = async req => {
 
 export const notFount: ApiHandler = (req, res) => {
   res.writeHead(404, {
-    "Content-Type": "text/plain;charset='utf-8'",
+    "Content-Type": "application/json",
   });
   res.end("404 NOT FOUNT");
+};
+
+export const serverError = (res: NodeResponse) => {
+  res.writeHead(500, {
+    "Content-Type": "application/json",
+  });
+  res.end("Internal Server Error");
 };
 
 export const getType = (param: StoreValue) => {

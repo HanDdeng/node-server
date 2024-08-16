@@ -10,7 +10,7 @@ import {
   StoreValue,
   errorListItem,
 } from "./utils/types";
-import { getReqParams, getType, notFount } from "@utils/tools";
+import { getReqParams, getType, notFount, serverError } from "@utils/tools";
 import url from "url";
 
 export class NodeServer {
@@ -78,6 +78,9 @@ export class NodeServer {
         const errorList: errorListItem[] = [];
         currentApi.options.paramsList?.forEach(item => {
           const itemType = getType(queryParmas[item.key]);
+          if (item.required === false && itemType === "undefined") {
+            return;
+          }
           if (itemType !== item.type) {
             errorList.push({ ...item, wrongType: itemType });
           }
@@ -95,8 +98,9 @@ export class NodeServer {
       await currentApi.handler(req, res);
     } catch (error: StoreValue) {
       if (this.#errorCatch) {
-        this.#errorCatch(error);
+        this.#errorCatch(req, res, error);
       } else {
+        serverError(res);
         throw error;
       }
     }
