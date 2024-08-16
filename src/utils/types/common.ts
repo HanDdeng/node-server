@@ -21,7 +21,7 @@ export type NodeResponse = http.ServerResponse<http.IncomingMessage> & {
 };
 
 export interface ErrorCatch {
-  (error: Error): void;
+  (req: NodeRequest, res: NodeResponse, error: Error): void;
 }
 
 export interface PermissionVerify {
@@ -35,6 +35,7 @@ export interface ApiHandler {
 export interface paramsItem {
   key: string;
   type: string;
+  required: boolean;
 }
 
 export interface ApiOptions {

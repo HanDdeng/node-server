@@ -1,5 +1,6 @@
 import {
   ApiHandler,
+  ErrorCatch,
   GetReqParams,
   NodeRequest,
   NodeResponse,
@@ -11,10 +12,14 @@ const getPostParams = async (req: NodeRequest) => {
   return new Promise((resolve, reject) => {
     let body = "";
     req.on("data", chunk => {
-      body += chunk.toString();
+      body += chunk?.toString() ?? "";
     });
     req.on("end", () => {
       try {
+        if (!body) {
+          resolve({});
+          return;
+        }
         resolve(JSON.parse(body));
       } catch (e) {
         reject(e);
@@ -40,9 +45,16 @@ export const getReqParams: GetReqParams = async req => {
 
 export const notFount: ApiHandler = (req, res) => {
   res.writeHead(404, {
-    "Content-Type": "text/plain;charset='utf-8'",
+    "Content-Type": "application/json",
   });
   res.end("404 NOT FOUNT");
+};
+
+export const serverError = (res: NodeResponse) => {
+  res.writeHead(500, {
+    "Content-Type": "application/json",
+  });
+  res.end("Internal Server Error");
 };
 
 export const getType = (param: StoreValue) => {
