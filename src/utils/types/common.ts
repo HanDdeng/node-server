@@ -35,7 +35,7 @@ export interface ApiHandler {
 export interface paramsItem {
   key: string;
   type: string;
-  required: boolean;
+  required?: boolean;
 }
 
 export interface ApiOptions {
