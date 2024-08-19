@@ -1,22 +1,23 @@
 {
   "name": "handdeng-node-server",
-  "version": "1.0.9",
-  "description": "",
+  "version": "1.1.0",
+  "description": "`handdeng-node-server` is a lightweight HTTP server framework built on Node.js, designed to simplify the creation and management of API services. This framework provides flexible routing, permission verification, parameter validation, and error handling mechanisms, making it ideal for building high-performance RESTful API services.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "start": "yarn build && pm2 start ecosystem.config.js --env prod && pm2 save",
     "build:esm": "tsc --project ./tsconfig.esm.json && tsc-alias -p ./tsconfig.esm.json",
     "build:cjs": "tsc --project ./tsconfig.cjs.json && tsc-alias -p ./tsconfig.cjs.json",
     "build": "yarn build:esm && yarn build:cjs",
-    "dev": "yarn build && NODE_ENV=development supervisor dist/index.js",
-    "update": "yarn build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "HanDdeng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HanDdeng/node-server/issues"
+  },
+  "homepage": "https://github.com/HanDdeng/node-server",
   "devDependencies": {
     "@types/node": "^22.1.0",
     "ts-node": "^10.9.2",
