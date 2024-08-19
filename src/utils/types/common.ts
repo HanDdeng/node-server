@@ -40,7 +40,6 @@ export interface paramsItem {
 
 export interface ApiOptions {
   openPermissionVerify?: boolean;
-  openParamsVerify?: boolean;
   paramsList?: paramsItem[];
 }
 
