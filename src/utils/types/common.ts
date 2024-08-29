@@ -11,7 +11,7 @@ export interface errorListItem {
 export type NodeRequest = http.IncomingMessage & {
   errorList?: errorListItem[];
   queryParmas?: { [key: string]: any };
-  user?: string;
+  user?: StoreValue;
 };
 
 export type NodeRequestMethod = http.IncomingMessage["method"];
