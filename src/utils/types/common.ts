@@ -2,6 +2,17 @@ import http from "http";
 
 export type StoreValue = any;
 
+export interface NodeServerOptions {
+  port: number;
+  host: string;
+  defaultVerify?: boolean;
+  prefixPath?: string;
+  /**
+   * 预留http或https
+   */
+  mode?: "http";
+}
+
 export interface errorListItem {
   key: string;
   type: string;
