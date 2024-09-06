@@ -9,32 +9,35 @@ import {
   PermissionVerify,
   StoreValue,
   errorListItem,
+  NodeServerOptions,
 } from "./utils/types";
 import { getReqParams, getType, notFount, serverError } from "@utils/tools";
 import url from "url";
+export { getType } from "@utils/tools";
 
 // 定义一个NodeServer类，用于创建和管理HTTP服务器
 export class NodeServer {
   port: number; // 服务器端口号
   host: string; // 服务器主机名
-  #errorCatch?: ErrorCatch; // 错误捕获处理函数
-  #openVerify: boolean; // 是否默认开启权限校验
   #apiList?: ApiListItem[]; // 注册的API列表
-  #permissionVerifyHanlder?: PermissionVerify; // 权限校验处理函数
+  #prefixPath: string; // API默认前缀
+  #openVerify: boolean; // 是否默认开启权限校验
+  #errorCatch?: ErrorCatch; // 错误捕获处理函数
   #notFountHandler: ApiHandler = notFount; // 找不到API路径时的处理函数
-  #methodsErrorHandler?: ApiHandler; // 请求方法错误时的处理函数
   #paramsErrorHanlder?: ApiHandler; // 请求参数错误时的处理函数
+  #methodsErrorHandler?: ApiHandler; // 请求方法错误时的处理函数
+  #permissionVerifyHanlder?: PermissionVerify; // 权限校验处理函数
 
   /**
    * 构造函数
-   * @param port - 服务器端口号
-   * @param host - 服务器主机名
-   * @param defaultVerify - 是否默认开启权限校验，默认为true
+   * @param options - 是否默认开启权限校验，默认为true
    */
-  constructor(port: number, host: string, defaultVerify = true) {
+  constructor(options: NodeServerOptions) {
+    const { port, host, defaultVerify = true, prefixPath = "" } = options;
     this.port = port;
     this.host = host;
     this.#openVerify = defaultVerify;
+    this.#prefixPath = prefixPath;
 
     // 创建HTTP服务器，并监听指定的端口和主机
     http
@@ -129,7 +132,7 @@ export class NodeServer {
       ...(this.#apiList ?? []),
       {
         methods: "GET",
-        path,
+        path: `${this.#prefixPath}${path}`,
         handler,
         options: {
           openPermissionVerify: this.#openVerify,
@@ -146,7 +149,7 @@ export class NodeServer {
       ...(this.#apiList ?? []),
       {
         methods: "POST",
-        path,
+        path: `${this.#prefixPath}${path}`,
         handler,
         options: {
           openPermissionVerify: this.#openVerify,
