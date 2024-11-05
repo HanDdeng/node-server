@@ -1,10 +1,9 @@
 import {
   ApiHandler,
-  ErrorCatch,
   GetReqParams,
   NodeRequest,
   NodeResponse,
-  StoreValue,
+  StoreValue
 } from "@utils/types";
 import url from "url";
 
@@ -35,9 +34,9 @@ const getGetParams = (req: NodeRequest) => {
 
 export const getReqParams: GetReqParams = async req => {
   const method = req.method?.toUpperCase() as string;
-  const reqMethods: { [key: string]: (req: NodeRequest) => any } = {
+  const reqMethods: { [key: string]: (req: NodeRequest) => StoreValue } = {
     GET: getGetParams,
-    POST: getPostParams,
+    POST: getPostParams
   };
   const queryParmas = reqMethods[method](req);
   return queryParmas;
@@ -45,14 +44,14 @@ export const getReqParams: GetReqParams = async req => {
 
 export const notFount: ApiHandler = (req, res) => {
   res.writeHead(404, {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
   });
   res.end("404 NOT FOUNT");
 };
 
 export const serverError = (res: NodeResponse) => {
   res.writeHead(500, {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
   });
   res.end("Internal Server Error");
 };

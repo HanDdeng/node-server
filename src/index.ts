@@ -7,9 +7,8 @@ import {
   NodeRequest,
   NodeResponse,
   PermissionVerify,
-  StoreValue,
   errorListItem,
-  NodeServerOptions,
+  NodeServerOptions
 } from "./utils/types";
 import { getReqParams, getType, notFount, serverError } from "@utils/tools";
 import url from "url";
@@ -137,9 +136,9 @@ export class NodeServer {
         options: {
           openPermissionVerify: this.#openVerify,
           paramsList: [],
-          ...options,
-        },
-      },
+          ...options
+        }
+      }
     ];
   }
 
@@ -154,9 +153,9 @@ export class NodeServer {
         options: {
           openPermissionVerify: this.#openVerify,
           paramsList: [],
-          ...options,
-        },
-      },
+          ...options
+        }
+      }
     ];
   }
 
