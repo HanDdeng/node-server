@@ -9,3 +9,8 @@ cache
 tsconfig.json
 eslint.config.js
 rollup.config.js
+
+.github
+.husky
+.vscode
+.prettierrc
