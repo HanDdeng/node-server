@@ -1,15 +1,15 @@
-/* 配置智能提示方案一(js中可使用) */
 import { defineConfig } from "rollup";
 
 import json from "@rollup/plugin-json";
 import terser from "@rollup/plugin-terser";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import typescript from "@rollup/plugin-typescript";
 import clear from "rollup-plugin-clear";
 
 export default defineConfig({
   // 直接使用rollup打包“带有ts语法的ts文件”报错，通过ts处理成js后打包
-  input: "cache/index.js",
+  input: "src/index.ts",
   cache: false,
   output: [
     {
@@ -27,8 +27,14 @@ export default defineConfig({
     }
   ],
   plugins: [
+    typescript({
+      tsconfig: "./tsconfig.json",
+      declaration: false,
+      declarationMap: false,
+      declarationDir: undefined
+    }),
     clear({
-      targets: ["dist/cjs", "dist/esm"],
+      targets: ["dist"],
       watch: true
     }),
     json(),

@@ -46,7 +46,7 @@ export interface ApiHandler {
 
 export interface paramsItem {
   key: string;
-  type: string;
+  type: "string" | "number" | "boolean" | "object" | "array";
   required?: boolean;
 }
 

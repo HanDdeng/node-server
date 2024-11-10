@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
+    // "rootDir": "./",
     "target": "ESNext",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -16,8 +16,8 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./cache",
-    "declarationDir": "./dist",
+    // "outDir": "./cache",
+    "declarationDir": "./dist/types",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -25,6 +25,6 @@
     "noImplicitAny": true,
     "skipLibCheck": false
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
   "exclude": []
 }

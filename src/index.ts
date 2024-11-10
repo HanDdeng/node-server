@@ -105,9 +105,9 @@ export class NodeServer {
         req.queryParmas = queryParmas;
       }
       await currentApi.handler(req, res); // 执行API处理函数
-    } catch (error: StoreValue) {
+    } catch (error) {
       if (this.#errorCatch) {
-        this.#errorCatch(req, res, error); // 自定义错误处理
+        this.#errorCatch(req, res, error as Error); // 自定义错误处理
       } else {
         serverError(res); // 默认服务器错误处理
         throw error;
