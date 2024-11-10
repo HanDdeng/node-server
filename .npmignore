@@ -5,9 +5,7 @@ package-lock.json
 
 #dev
 src
+cache
 tsconfig.json
-tsconfig.esm.json
-tsconfig.cjs.json
-
-#GIT
-.github
+eslint.config.js
+rollup.config.js

@@ -7,9 +7,8 @@ import {
   NodeRequest,
   NodeResponse,
   PermissionVerify,
-  StoreValue,
   errorListItem,
-  NodeServerOptions,
+  NodeServerOptions
 } from "./utils/types";
 import { getReqParams, getType, notFount, serverError } from "@utils/tools";
 import url from "url";
@@ -106,9 +105,9 @@ export class NodeServer {
         req.queryParmas = queryParmas;
       }
       await currentApi.handler(req, res); // 执行API处理函数
-    } catch (error: StoreValue) {
+    } catch (error) {
       if (this.#errorCatch) {
-        this.#errorCatch(req, res, error); // 自定义错误处理
+        this.#errorCatch(req, res, error as Error); // 自定义错误处理
       } else {
         serverError(res); // 默认服务器错误处理
         throw error;
@@ -137,9 +136,9 @@ export class NodeServer {
         options: {
           openPermissionVerify: this.#openVerify,
           paramsList: [],
-          ...options,
-        },
-      },
+          ...options
+        }
+      }
     ];
   }
 
@@ -154,9 +153,9 @@ export class NodeServer {
         options: {
           openPermissionVerify: this.#openVerify,
           paramsList: [],
-          ...options,
-        },
-      },
+          ...options
+        }
+      }
     ];
   }
 

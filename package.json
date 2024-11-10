@@ -1,15 +1,24 @@
 {
   "name": "handdeng-node-server",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "`handdeng-node-server` is a lightweight HTTP server framework built on Node.js, designed to simplify the creation and management of API services. This framework provides flexible routing, permission verification, parameter validation, and error handling mechanisms, making it ideal for building high-performance RESTful API services.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "typings": "dist/index.d.ts",
+  "typings": "dist/types/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.cjs.js",
+      "import": "./dist/esm/index.mjs"
+    }
+  },
   "scripts": {
-    "build:esm": "tsc --project ./tsconfig.esm.json && tsc-alias -p ./tsconfig.esm.json",
-    "build:cjs": "tsc --project ./tsconfig.cjs.json && tsc-alias -p ./tsconfig.cjs.json",
-    "build": "yarn build:esm && yarn build:cjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:types": "tsc --emitDeclarationOnly",
+    "build": "rollup -c && yarn build:types",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "HanDdeng",
@@ -19,12 +28,32 @@
   },
   "homepage": "https://github.com/HanDdeng/node-server",
   "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.1",
     "@types/node": "^22.1.0",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jsonc": "^2.16.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "globals": "^15.12.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "prettier-eslint": "^16.3.0",
+    "rollup": "^4.24.4",
+    "rollup-plugin-clear": "^2.0.7",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.13.0"
   },
-  "dependencies": {
-    "dayjs": "^1.11.12"
+  "dependencies": {},
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts,json,jsonc}": "eslint --fix"
   }
 }

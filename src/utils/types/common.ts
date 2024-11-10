@@ -1,5 +1,6 @@
 import http from "http";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type StoreValue = any;
 
 export interface NodeServerOptions {
@@ -21,7 +22,7 @@ export interface errorListItem {
 
 export type NodeRequest = http.IncomingMessage & {
   errorList?: errorListItem[];
-  queryParmas?: { [key: string]: any };
+  queryParmas?: { [key: string]: StoreValue };
   user?: StoreValue;
 };
 
@@ -45,7 +46,7 @@ export interface ApiHandler {
 
 export interface paramsItem {
   key: string;
-  type: string;
+  type: "string" | "number" | "boolean" | "object" | "array";
   required?: boolean;
 }
 
@@ -62,5 +63,5 @@ export interface ApiListItem {
 }
 
 export interface GetReqParams {
-  (req: NodeRequest): Promise<{ [key: string]: any }>;
+  (req: NodeRequest): Promise<{ [key: string]: StoreValue }>;
 }
