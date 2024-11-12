@@ -17,22 +17,24 @@ export default defineConfig({
       dir: "dist/cjs",
       format: "cjs",
       sourcemap: true,
-      entryFileNames: "[name].cjs.js",
-      chunkFileNames: "[name]-[hash].cjs.js"
+      entryFileNames: "[name].cjs",
+      chunkFileNames: "[name]-[hash].cjs"
     },
     {
       dir: "dist/esm",
       sourcemap: true,
-      entryFileNames: "[name].mjs",
-      chunkFileNames: "[name]-[hash].mjs"
+      entryFileNames: "[name].js",
+      chunkFileNames: "[name]-[hash].js"
     }
   ],
   plugins: [
     typescript({
       tsconfig: "./tsconfig.json",
+      outDir: undefined,
       declaration: false,
       declarationMap: false,
-      declarationDir: undefined
+      declarationDir: undefined,
+      emitDeclarationOnly: undefined
     }),
     clear({
       targets: ["dist"],
