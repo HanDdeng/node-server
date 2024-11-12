@@ -1272,6 +1272,11 @@ hasown@^2.0.2:
   dependencies:
     function-bind "^1.1.2"
 
+hd-pub-sub@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/hd-pub-sub/-/hd-pub-sub-1.0.1.tgz#0bbabfcd028c437c2ed6842029c467e1635dbec6"
+  integrity sha512-+emH/pgS241grX2nLYrwxNDwQ7TmKkD8zkQkAdnsu2yUnc25DIiiW9njVB2e0yPC4QNxcXlub0XX8aQIBvhogg==
+
 human-signals@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-5.0.0.tgz#42665a284f9ae0dade3ba41ebc37eb4b852f3a28"

@@ -1,8 +1,13 @@
+import createpubSub from "hd-pub-sub";
 import {
   ApiHandler,
+  ErrorCatch,
   GetReqParams,
   NodeRequest,
-  NodeResponse,
+  NodeResponseForInternal,
+  On,
+  Send,
+  SendOptions,
   StoreValue
 } from "@utils/types";
 import url from "url";
@@ -42,20 +47,40 @@ export const getReqParams: GetReqParams = async req => {
   return queryParmas;
 };
 
-export const notFount: ApiHandler = (req, res) => {
-  res.writeHead(404, {
-    "Content-Type": "application/json"
+export const defaultNotFountHandler: ApiHandler = (req, res) => {
+  res.send("404 NOT FOUNT", {
+    code: 404
   });
-  res.end("404 NOT FOUNT");
 };
 
-export const serverError = (res: NodeResponse) => {
-  res.writeHead(500, {
-    "Content-Type": "application/json"
+export const defaultErrorCatchHandler: ErrorCatch = (req, res) => {
+  res.send("Internal Server Error", {
+    code: 500
   });
-  res.end("Internal Server Error");
 };
 
 export const getType = (param: StoreValue) => {
   return Object.prototype.toString.call(param).slice(8, -1).toLowerCase();
 };
+
+export const createSend =
+  (
+    req: NodeRequest,
+    res: NodeResponseForInternal,
+    pubSub: ReturnType<typeof createpubSub<On>>
+  ): Send =>
+  (data: StoreValue, options?: SendOptions) => {
+    if (!res.headersSent) {
+      res.writeHead(options?.code ?? 200, {
+        "Content-Type": "application/json",
+        ...options?.headers
+      });
+    }
+    pubSub.publish("response", data, res, req);
+    // 发送数据并结束响应
+    if (typeof data === "object") {
+      res.end(JSON.stringify(data)); // 将对象转换为 JSON 字符串
+    } else {
+      res.end(data); // 发送原始数据
+    }
+  };

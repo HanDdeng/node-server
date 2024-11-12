@@ -1,11 +1,11 @@
-import http from "http";
+import http, { OutgoingHttpHeader, OutgoingHttpHeaders } from "http";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type StoreValue = any;
 
 export interface NodeServerOptions {
   port: number;
-  host: string;
+  host?: string;
   defaultVerify?: boolean;
   prefixPath?: string;
   /**
@@ -14,34 +14,44 @@ export interface NodeServerOptions {
   mode?: "http";
 }
 
-export interface errorListItem {
+export interface ErrorListItem {
   key: string;
   type: string;
   wrongType: string;
 }
 
 export type NodeRequest = http.IncomingMessage & {
-  errorList?: errorListItem[];
+  errorList?: ErrorListItem[];
   queryParmas?: { [key: string]: StoreValue };
   user?: StoreValue;
 };
 
-export type NodeRequestMethod = http.IncomingMessage["method"];
+export type NodeResponseForInternal =
+  http.ServerResponse<http.IncomingMessage> & {
+    req: NodeRequest;
+  };
 
-export type NodeResponse = http.ServerResponse<http.IncomingMessage> & {
-  req: http.IncomingMessage;
+export interface SendOptions {
+  code?: number;
+  headers?: OutgoingHttpHeaders | OutgoingHttpHeader[];
+}
+
+export type Send = (data: StoreValue, options?: SendOptions) => void;
+
+export type NodeResponseForExternal = NodeResponseForInternal & {
+  send: Send;
 };
 
 export interface ErrorCatch {
-  (req: NodeRequest, res: NodeResponse, error: Error): void;
+  (req: NodeRequest, res: NodeResponseForExternal, error: Error): void;
 }
 
-export interface PermissionVerify {
-  (req: NodeRequest, res: NodeResponse): Promise<boolean>;
+export interface Authentication {
+  (req: NodeRequest, res: NodeResponseForExternal): Promise<boolean>;
 }
 
 export interface ApiHandler {
-  (req: NodeRequest, res: NodeResponse): void;
+  (req: NodeRequest, res: NodeResponseForExternal): void;
 }
 
 export interface paramsItem {
@@ -65,3 +75,16 @@ export interface ApiListItem {
 export interface GetReqParams {
   (req: NodeRequest): Promise<{ [key: string]: StoreValue }>;
 }
+
+export type On = {
+  // 接收到新请求后触发
+  request: (req: NodeRequest) => void;
+  // 调用sent函数后后触发
+  response: (
+    data: StoreValue,
+    res: NodeResponseForInternal,
+    req: NodeRequest
+  ) => void;
+  // 服务报错后触发
+  catch: (error: Error, req: NodeRequest, res: NodeResponseForInternal) => void;
+};
