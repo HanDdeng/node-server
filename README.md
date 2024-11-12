@@ -63,4 +63,4 @@
 - **catch**: Global error handler function.
 - **paramsError**: Handler function for request parameter errors.
 - **notFount**: Handler function for cases where the route is not found.
-- **methodsErrorHandler**: Handler function for incorrect HTTP methods.
+- **methodsError**: Handler function for incorrect HTTP methods.

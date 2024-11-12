@@ -5,34 +5,49 @@ import {
   ApiListItem,
   ErrorCatch,
   NodeRequest,
-  NodeResponse,
-  PermissionVerify,
-  errorListItem,
-  NodeServerOptions
+  NodeResponseForInternal,
+  Authentication,
+  ErrorListItem,
+  NodeServerOptions,
+  On,
+  NodeResponseForExternal
 } from "./utils/types";
-import { getReqParams, getType, notFount, serverError } from "@utils/tools";
+import {
+  getReqParams,
+  getType,
+  defaultNotFountHandler,
+  defaultErrorCatchHandler,
+  createSend
+} from "@utils/tools";
 import url from "url";
 export { getType } from "@utils/tools";
+import createpubSub from "hd-pub-sub";
 
 // 定义一个NodeServer类，用于创建和管理HTTP服务器
 export class NodeServer {
   port: number; // 服务器端口号
   host: string; // 服务器主机名
+  #pubSub = createpubSub<On>(); // 发布订阅
   #apiList?: ApiListItem[]; // 注册的API列表
   #prefixPath: string; // API默认前缀
   #openVerify: boolean; // 是否默认开启权限校验
-  #errorCatch?: ErrorCatch; // 错误捕获处理函数
-  #notFountHandler: ApiHandler = notFount; // 找不到API路径时的处理函数
-  #paramsErrorHanlder?: ApiHandler; // 请求参数错误时的处理函数
+  #errorCatchHandler: ErrorCatch = defaultErrorCatchHandler; // 错误捕获处理函数
+  #notFountHandler: ApiHandler = defaultNotFountHandler; // 找不到API路径时的处理函数
+  #paramsErrorHandler?: ApiHandler; // 请求参数错误时的处理函数
   #methodsErrorHandler?: ApiHandler; // 请求方法错误时的处理函数
-  #permissionVerifyHanlder?: PermissionVerify; // 权限校验处理函数
+  #authenticationHandler?: Authentication; // 权限校验处理函数
 
   /**
    * 构造函数
    * @param options - 是否默认开启权限校验，默认为true
    */
   constructor(options: NodeServerOptions) {
-    const { port, host, defaultVerify = true, prefixPath = "" } = options;
+    const {
+      port,
+      host = "127.0.0.1",
+      defaultVerify = true,
+      prefixPath = ""
+    } = options;
     this.port = port;
     this.host = host;
     this.#openVerify = defaultVerify;
@@ -50,8 +65,13 @@ export class NodeServer {
    * @param req - HTTP请求对象
    * @param res - HTTP响应对象
    */
-  async _routes(req: NodeRequest, res: NodeResponse) {
+  async _routes(req: NodeRequest, originalRes: NodeResponseForInternal) {
+    const res = {
+      ...originalRes,
+      send: createSend(req, originalRes, this.#pubSub)
+    } as NodeResponseForExternal;
     try {
+      this.#pubSub.publish("request", req);
       const method = req.method?.toUpperCase(); // 获取请求方法
       const { pathname } = url.parse(req.url as string, true); // 解析请求URL路径
 
@@ -75,7 +95,8 @@ export class NodeServer {
 
       // 判断当前api是否开启权限校验，开启即进行鉴权
       if (currentApi.options.openPermissionVerify) {
-        const verifyRes = await this.#permissionVerifyHanlder?.(req, res);
+        const verifyRes =
+          (await this.#authenticationHandler?.(req, res)) ?? true;
         if (!verifyRes) {
           return;
         }
@@ -84,7 +105,7 @@ export class NodeServer {
 
       // 判断当前API是否开启参数校验，开启即校验
       if (currentApi.options.paramsList?.length) {
-        const errorList: errorListItem[] = [];
+        const errorList: ErrorListItem[] = [];
         currentApi.options.paramsList?.forEach(item => {
           const itemType = getType(queryParmas[item.key]); // 获取参数类型
           if (item.required === false && itemType === "undefined") {
@@ -96,7 +117,7 @@ export class NodeServer {
         });
         if (errorList.length) {
           req.errorList = errorList;
-          this.#paramsErrorHanlder?.(req, res); // 处理参数错误
+          this.#paramsErrorHandler?.(req, res); // 处理参数错误
           return;
         } else {
           req.queryParmas = queryParmas; // 参数校验通过，保存参数
@@ -106,23 +127,19 @@ export class NodeServer {
       }
       await currentApi.handler(req, res); // 执行API处理函数
     } catch (error) {
-      if (this.#errorCatch) {
-        this.#errorCatch(req, res, error as Error); // 自定义错误处理
-      } else {
-        serverError(res); // 默认服务器错误处理
-        throw error;
-      }
+      this.#pubSub.publish("catch", error as Error, req, res);
+      this.#errorCatchHandler(req, res, error as Error); // 错误处理
     }
   }
 
   // 注册全局错误处理函数
-  catch(handler?: ErrorCatch) {
-    this.#errorCatch = handler;
+  catch(handler: ErrorCatch) {
+    this.#errorCatchHandler = handler;
   }
 
   // 注册全局权限校验处理函数
-  permissionVerify(handler: PermissionVerify) {
-    this.#permissionVerifyHanlder = handler;
+  permissionVerify(handler: Authentication) {
+    this.#authenticationHandler = handler;
   }
 
   // 注册GET请求处理函数
@@ -161,7 +178,7 @@ export class NodeServer {
 
   // 注册全局参数错误处理函数
   paramsError(handler: ApiHandler) {
-    this.#paramsErrorHanlder = handler;
+    this.#paramsErrorHandler = handler;
   }
 
   // 注册全局找不到路径处理函数
@@ -170,7 +187,15 @@ export class NodeServer {
   }
 
   // 注册全局请求方法错误处理函数
-  methodsErrorHandler(handler: ApiHandler) {
+  methodsError(handler: ApiHandler) {
     this.#methodsErrorHandler = handler;
+  }
+
+  // 监听器
+  /**
+   * @param eventName -request: 接收到新请求后触发; response: 调用sent函数后后触发; catch: 服务报错后触发;
+   */
+  on<T extends keyof On>(eventName: T, handler: On[T]) {
+    this.#pubSub.subscribe(eventName, handler);
   }
 }
