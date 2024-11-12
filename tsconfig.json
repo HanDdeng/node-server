@@ -10,13 +10,14 @@
     "paths": {
       "@utils/*": ["utils/*"]
     },
+    "emitDeclarationOnly": true,
     "types": ["node"],
     "resolveJsonModule": true,
     "allowJs": false,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    // "outDir": "./cache",
+    "outDir": "./dist",
     "declarationDir": "./dist/types",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
