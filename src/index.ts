@@ -101,13 +101,16 @@ export class NodeServer {
           return;
         }
       }
-      const queryParmas = await getReqParams(req); // 获取请求参数
+      const queryParams = await getReqParams(req); // 获取请求参数
 
       // 判断当前API是否开启参数校验，开启即校验
       if (currentApi.options.paramsList?.length) {
         const errorList: ErrorListItem[] = [];
+        const method = { GET: "query", POST: "body" }[
+          req.method?.toUpperCase() ?? "GET"
+        ] as "query" | "body";
         currentApi.options.paramsList?.forEach(item => {
-          const itemType = getType(queryParmas[item.key]); // 获取参数类型
+          const itemType = getType(queryParams[method][item.key]); // 获取参数类型
           if (item.required === false && itemType === "undefined") {
             return;
           }
@@ -120,10 +123,10 @@ export class NodeServer {
           this.#paramsErrorHandler?.(req, res); // 处理参数错误
           return;
         } else {
-          req.queryParmas = queryParmas; // 参数校验通过，保存参数
+          req.queryParams = queryParams; // 参数校验通过，保存参数
         }
       } else {
-        req.queryParmas = queryParmas;
+        req.queryParams = queryParams;
       }
       await currentApi.handler(req, res); // 执行API处理函数
     } catch (error) {
