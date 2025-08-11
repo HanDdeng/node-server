@@ -20,9 +20,14 @@ export interface ErrorListItem {
   wrongType: string;
 }
 
+export interface QueryParams {
+  query?: { [key: string]: StoreValue };
+  body?: { [key: string]: StoreValue };
+}
+
 export type NodeRequest = http.IncomingMessage & {
   errorList?: ErrorListItem[];
-  queryParmas?: { [key: string]: StoreValue };
+  queryParams?: QueryParams;
   user?: StoreValue;
 };
 
@@ -32,6 +37,7 @@ export type NodeResponseForInternal =
   };
 
 export interface SendOptions {
+  isSerialization?: boolean;
   code?: number;
   headers?: OutgoingHttpHeaders | OutgoingHttpHeader[];
 }
@@ -73,7 +79,10 @@ export interface ApiListItem {
 }
 
 export interface GetReqParams {
-  (req: NodeRequest): Promise<{ [key: string]: StoreValue }>;
+  (req: NodeRequest): Promise<{
+    query: { [key: string]: StoreValue };
+    body: StoreValue;
+  }>;
 }
 
 export type On = {

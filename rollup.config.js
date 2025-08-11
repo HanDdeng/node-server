@@ -9,6 +9,7 @@ import alias from "@rollup/plugin-alias";
 import clear from "rollup-plugin-clear";
 
 export default defineConfig({
+  context: "global",
   // 直接使用rollup打包“带有ts语法的ts文件”报错，通过ts处理成js后打包
   input: "src/index.ts",
   cache: false,

@@ -10,9 +10,11 @@ import {
   SendOptions,
   StoreValue
 } from "@utils/types";
-import url from "url";
+import formidable from "formidable";
+import path from "path";
+import { createDir } from "fs-manage";
 
-const getPostParams = async (req: NodeRequest) => {
+/* const getPostParams = async (req: NodeRequest) => {
   return new Promise((resolve, reject) => {
     let body = "";
     req.on("data", chunk => {
@@ -35,16 +37,71 @@ const getPostParams = async (req: NodeRequest) => {
 const getGetParams = (req: NodeRequest) => {
   const { query } = url.parse(req.url as string, true);
   return query;
-};
+}; */
+
+// 通用流数据收集
+function collectStream(req: NodeRequest): Promise<string> {
+  return new Promise(resolve => {
+    let data = "";
+    req.on("data", chunk => (data += chunk));
+    req.on("end", () => resolve(data));
+  });
+}
+
+// 解析 URL Encoded 数据
+async function parseUrlEncodedBody(req: NodeRequest) {
+  const data = await collectStream(req);
+  return Object.fromEntries(new URLSearchParams(data).entries());
+}
+
+// 解析 FormData（文件上传）
+async function parseFormData(req: NodeRequest) {
+  let uploadDir = "";
+  if (process.env.UPLOAD_PATH && process.env.UPLOAD_PATH.slice(0, 1) === "/") {
+    uploadDir = process.env.UPLOAD_PATH;
+  } else {
+    uploadDir = path.resolve(
+      process.cwd(),
+      process.env.UPLOAD_PATH || "uploads"
+    );
+  }
+  await createDir(uploadDir);
+  const form = formidable({ multiples: true, uploadDir, keepExtensions: true });
+  const [fields, files] = await form.parse(req);
+  return { ...fields, files };
+}
+
+// 解析 JSON 请求体
+async function parseJsonBody(req: NodeRequest) {
+  const data = await collectStream(req);
+  return JSON.parse(data);
+}
 
 export const getReqParams: GetReqParams = async req => {
-  const method = req.method?.toUpperCase() as string;
+  /* const method = req.method?.toUpperCase() as string;
   const reqMethods: { [key: string]: (req: NodeRequest) => StoreValue } = {
     GET: getGetParams,
     POST: getPostParams
   };
-  const queryParmas = reqMethods[method](req);
-  return queryParmas;
+  const queryParams = reqMethods[method](req);
+  return queryParams; */
+
+  const query = Object.fromEntries(
+    new URLSearchParams(req.url?.split("?")[1] || "").entries()
+  );
+
+  let body: StoreValue = {};
+  const contentType = req.headers["content-type"] || "";
+
+  if (contentType.includes("application/json")) {
+    body = await parseJsonBody(req);
+  } else if (contentType.includes("multipart/form-data")) {
+    body = await parseFormData(req);
+  } else if (contentType.includes("application/x-www-form-urlencoded")) {
+    body = await parseUrlEncodedBody(req);
+  }
+
+  return { query, body };
 };
 
 export const defaultNotFountHandler: ApiHandler = (req, res) => {
@@ -78,7 +135,8 @@ export const createSend =
     }
     pubSub.publish("response", data, res, req);
     // 发送数据并结束响应
-    if (typeof data === "object") {
+    const { isSerialization = true } = options ?? {};
+    if (typeof data === "object" && isSerialization) {
       res.end(JSON.stringify(data)); // 将对象转换为 JSON 字符串
     } else {
       res.end(data); // 发送原始数据
