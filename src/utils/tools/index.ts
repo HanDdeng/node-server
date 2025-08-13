@@ -13,6 +13,7 @@ import {
 import formidable from "formidable";
 import path from "path";
 import { createDir } from "fs-manage";
+import dayjs from "dayjs";
 
 /* const getPostParams = async (req: NodeRequest) => {
   return new Promise((resolve, reject) => {
@@ -65,6 +66,7 @@ async function parseFormData(req: NodeRequest) {
       process.env.UPLOAD_PATH || "uploads"
     );
   }
+  uploadDir += `/${dayjs().format("YYYY-MM-DD")}`;
   await createDir(uploadDir);
   const form = formidable({ multiples: true, uploadDir, keepExtensions: true });
   const [fields, files] = await form.parse(req);

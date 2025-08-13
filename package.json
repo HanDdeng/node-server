@@ -1,6 +1,6 @@
 {
   "name": "handdeng-node-server",
-  "version": "1.2.0-beta.2",
+  "version": "1.2.0-beta.3",
   "description": "`handdeng-node-server` is a lightweight HTTP server framework built on Node.js, designed to simplify the creation and management of API services. This framework provides flexible routing, permission verification, parameter validation, and error handling mechanisms, making it ideal for building high-performance RESTful API services.",
   "main": "dist/cjs/index.cjs",
   "module": "dist/esm/index.js",
@@ -55,6 +55,7 @@
     "typescript-eslint": "^8.13.0"
   },
   "dependencies": {
+    "dayjs": "^1.11.13",
     "formidable": "^3.5.4",
     "fs-manage": "^1.0.1",
     "hd-pub-sub": "^1.0.1"
