@@ -1,8 +1,6 @@
 import http from "http";
 import {
   ApiHandler,
-  ApiOptions,
-  ApiListItem,
   ErrorCatch,
   NodeRequest,
   NodeResponseForInternal,
@@ -17,7 +15,8 @@ import {
   getType,
   defaultNotFountHandler,
   defaultErrorCatchHandler,
-  createSend
+  createSend,
+  createRouter
 } from "@utils/tools";
 import url from "url";
 export { getType } from "@utils/tools";
@@ -27,15 +26,15 @@ import createpubSub from "hd-pub-sub";
 export class NodeServer {
   port: number; // 服务器端口号
   host: string; // 服务器主机名
+  get: typeof this.router.get;
+  post: typeof this.router.post;
   #pubSub = createpubSub<On>(); // 发布订阅
-  #apiList?: ApiListItem[]; // 注册的API列表
-  #prefixPath: string; // API默认前缀
-  #openVerify: boolean; // 是否默认开启权限校验
   #errorCatchHandler: ErrorCatch = defaultErrorCatchHandler; // 错误捕获处理函数
   #notFountHandler: ApiHandler = defaultNotFountHandler; // 找不到API路径时的处理函数
   #paramsErrorHandler?: ApiHandler; // 请求参数错误时的处理函数
   #methodsErrorHandler?: ApiHandler; // 请求方法错误时的处理函数
   #authenticationHandler?: Authentication; // 权限校验处理函数
+  private router: ReturnType<typeof createRouter>; // 路由
 
   /**
    * 构造函数
@@ -50,8 +49,12 @@ export class NodeServer {
     } = options;
     this.port = port;
     this.host = host;
-    this.#openVerify = defaultVerify;
-    this.#prefixPath = prefixPath;
+    this.router = createRouter({
+      openPermissionVerify: defaultVerify,
+      prefixPath
+    });
+    this.get = this.router.get;
+    this.post = this.router.post;
 
     // 创建HTTP服务器，并监听指定的端口和主机
     http
@@ -76,11 +79,11 @@ export class NodeServer {
       const { pathname } = url.parse(req.url as string, true); // 解析请求URL路径
 
       // 如果请求路径不存在，执行notFount传入的方法
-      if (!this.#apiList?.find(item => item.path === pathname)) {
+      if (!this.router.routes.find(item => item.path === pathname)) {
         this.#notFountHandler(req, res);
         return;
       }
-      const currentApi = this.#apiList?.find(
+      const currentApi = this.router.routes.find(
         item => item.path === pathname && item.methods === method
       );
       // 请求路径存在但请求方法不正确，如果自定义了methodsError即执行，否则执行notFount方法
@@ -145,39 +148,23 @@ export class NodeServer {
     this.#authenticationHandler = handler;
   }
 
-  // 注册GET请求处理函数
-  get(path: string, handler: ApiHandler, options?: ApiOptions) {
-    this.#apiList = [
-      ...(this.#apiList ?? []),
-      {
-        methods: "GET",
-        path: `${this.#prefixPath}${path}`,
-        handler,
-        options: {
-          openPermissionVerify: this.#openVerify,
-          paramsList: [],
-          ...options
-        }
-      }
-    ];
+  /* // 注册GET请求处理函数
+  get(
+    path: Parameters<typeof this.router.get>[0],
+    handler: Parameters<typeof this.router.get>[1],
+    options?: Parameters<typeof this.router.get>[2]
+  ) {
+    this.router.get(path, handler, options);
   }
 
   // 注册POST请求处理函数
-  post(path: string, handler: ApiHandler, options?: ApiOptions) {
-    this.#apiList = [
-      ...(this.#apiList ?? []),
-      {
-        methods: "POST",
-        path: `${this.#prefixPath}${path}`,
-        handler,
-        options: {
-          openPermissionVerify: this.#openVerify,
-          paramsList: [],
-          ...options
-        }
-      }
-    ];
-  }
+  post(
+    path: Parameters<typeof this.router.get>[0],
+    handler: Parameters<typeof this.router.get>[1],
+    options?: Parameters<typeof this.router.get>[2]
+  ) {
+    this.router.post(path, handler, options);
+  } */
 
   // 注册全局参数错误处理函数
   paramsError(handler: ApiHandler) {

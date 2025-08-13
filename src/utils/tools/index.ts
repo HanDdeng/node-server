@@ -14,6 +14,7 @@ import formidable from "formidable";
 import path from "path";
 import { createDir } from "fs-manage";
 import dayjs from "dayjs";
+export * from "./router";
 
 /* const getPostParams = async (req: NodeRequest) => {
   return new Promise((resolve, reject) => {
