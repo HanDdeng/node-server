@@ -24,20 +24,28 @@
 
    ```typescript
    import { NodeServer } from "handdeng-node-server";
-   const server = new NodeServer(3000, "localhost");
+   const server = new NodeServer({
+      port: 3000,
+      host: "localhost",
+   });
    ```
 
 3. **Register API Routes**
 
    ```typescript
    server.get("/api/test", (req, res) => {
+     // req.query = res.queryParams.query
      res.writeHead(200, { "Content-Type": "application/json" });
      res.end(JSON.stringify({ message: "GET request success" }));
    });
 
    server.post("/api/test", (req, res) => {
-     res.writeHead(200, { "Content-Type": "application/json" });
-     res.end(JSON.stringify({ message: "POST request success" }));
+     // req.body = res.queryParams.body
+     res.send({
+      data: true,
+      code: 200,
+      message: 'success'
+     })
    });
    ```
 

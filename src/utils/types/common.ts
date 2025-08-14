@@ -1,13 +1,20 @@
-import http, { OutgoingHttpHeader, OutgoingHttpHeaders } from "http";
+import type http from "http";
+import type { OutgoingHttpHeader, OutgoingHttpHeaders } from "http";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type StoreValue = any;
+export type RequestMethod = "GET" | "POST";
+export type OriginalReq = http.IncomingMessage;
+export type OriginalRes = http.ServerResponse<http.IncomingMessage> & {
+  req: http.IncomingMessage;
+};
 
 export interface NodeServerOptions {
   port: number;
   host?: string;
   defaultVerify?: boolean;
   prefixPath?: string;
+  timeout?: number;
   /**
    * 预留http或https
    */
@@ -21,8 +28,8 @@ export interface ErrorListItem {
 }
 
 export interface QueryParams {
-  query?: { [key: string]: StoreValue };
-  body?: { [key: string]: StoreValue };
+  query: { [key: string]: StoreValue };
+  body: { [key: string]: StoreValue };
 }
 
 export type NodeRequest = http.IncomingMessage & {
@@ -52,6 +59,14 @@ export interface ErrorCatch {
   (req: NodeRequest, res: NodeResponseForExternal, error: Error): void;
 }
 
+export interface MethodNotAllowed {
+  (
+    req: NodeRequest,
+    res: NodeResponseForExternal,
+    allowMethodsList: string[]
+  ): void;
+}
+
 export interface Authentication {
   (req: NodeRequest, res: NodeResponseForExternal): Promise<boolean>;
 }
@@ -72,7 +87,7 @@ export interface ApiOptions {
 }
 
 export interface ApiListItem {
-  methods: "GET" | "POST";
+  method: RequestMethod;
   path: string;
   handler: ApiHandler;
   options: ApiOptions;
@@ -97,3 +112,7 @@ export type On = {
   // 服务报错后触发
   catch: (error: Error, req: NodeRequest, res: NodeResponseForInternal) => void;
 };
+
+export interface Entry {
+  (req: http.IncomingMessage, res: NodeResponseForExternal): void;
+}
