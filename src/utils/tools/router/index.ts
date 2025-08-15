@@ -44,9 +44,9 @@ export function createRouter(params: RouterType.CreateRouterParams) {
     /* 获取请求方法 */
     const method = req.method?.toUpperCase();
     /* 解析请求URL路径 */
-    const { path } = url.parse(req.url as string, true);
+    const { pathname } = url.parse(req.url as string, true);
 
-    const list = routes.filter(v => v.path === path);
+    const list = routes.filter(v => v.path === pathname);
 
     if (!list.length) {
       /* 资源不存在 */
